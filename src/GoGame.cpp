@@ -11,7 +11,7 @@ BoardPos *GoGame::getRelativePos(BoardPos pos, int xTransform, int yTransform)
 {
     int newX = pos.x + xTransform;
     int newY = pos.y + yTransform;
-    if (newX < 1 || newY < 1)
+    if (newX < 0 || newY < 0)
     {
         return nullptr;
     }
@@ -47,25 +47,13 @@ GoGame::GoGame(int w, int h)
 bool GoGame::placeStone(sf::Vector2i xy)
 {
 
-    char state = 'B';
+    char colour = 'B';
     if (!blackTurn)
     {
-        state = 'W';
+        colour = 'W';
     }
 
-    BoardPos move(xy.y, xy.x, state);
-    /*
-        update board.
-        get adj enemy stones. for each, check if catpured:
-            keep a list of searched points
-            for each adj point:
-                if point is on board and point is not in searched, add it, search it. stop if we find empty space
-
-
-            if captured, return searched group, blank them, update points
-            else if no captures and placed stone has no liberties: error
-
-    */
+    BoardPos move(xy.y, xy.x, colour);
     if (board[move.x][move.y].state != ' ')
     {
         std::cout << "invalid move: space occupied" << std::endl;
@@ -79,17 +67,19 @@ bool GoGame::placeStone(sf::Vector2i xy)
                             {0, -1},
                             {-1, 0}};
     bool capturedSomething = false;
+    // for each adj space (up, left, down, right)
     for (auto transform : transforms)
     {
-
         BoardPos *p = getRelativePos(move, transform[0], transform[1]);
-
+        // if adj is not OOB
         if (p != nullptr)
         {
             std::cout << "checking adj: " << *p << std::endl;
-            if (p->state == move.state)
+            // if connected to a friend
+            if ((p->state != move.state) && (p->state != ' '))
             {
                 std::cout << "found adj from: " << *p << std::endl;
+                // inefficient: potentially checks same group 4 times.
                 vector<BoardPos> searched = vector<BoardPos>();
 
                 if (!rec_hasLiberties(searched, p))
@@ -125,26 +115,9 @@ bool GoGame::placeStone(sf::Vector2i xy)
             return -1;
         }
     }
-
     blackTurn = !blackTurn;
     std::cout << "valid move, returning" << std::endl;
     return 0;
-}
-
-vector<sf::Vector2i> GoGame::getEmptySpaces()
-{
-    vector<sf::Vector2i> res;
-    for (auto row : board)
-    {
-        for (auto space : row)
-        {
-            if (space.state == ' ')
-            {
-                res.push_back({space.x, space.y});
-            }
-        }
-    }
-    return res;
 }
 
 bool GoGame::rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone)
@@ -163,10 +136,6 @@ bool GoGame::rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone)
         // std::cout << "checking: " << *adjacent << std::endl;
         if (adjacent != nullptr)
         {
-            for (auto p : searched)
-            {
-                std::cout << "searched: " << p << std::endl;
-            }
             if (std::find(searched.begin(), searched.end(), *adjacent) == searched.end())
             {
                 searched.push_back(*stone);
@@ -180,6 +149,26 @@ bool GoGame::rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone)
                 {
                     res = rec_hasLiberties(searched, adjacent);
                 }
+            }
+        }
+        else
+        {
+            std::cout << "[rec] skipped adj check: OOB" << std::endl;
+        }
+    }
+    return res;
+}
+
+vector<sf::Vector2i> GoGame::getEmptySpaces()
+{
+    vector<sf::Vector2i> res;
+    for (auto row : board)
+    {
+        for (auto space : row)
+        {
+            if (space.state == ' ')
+            {
+                res.push_back({space.x, space.y});
             }
         }
     }

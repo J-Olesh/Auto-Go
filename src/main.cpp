@@ -11,7 +11,18 @@ int main()
 	const int BOARD_H = 19;
 	GoGame game = GoGame(BOARD_W, BOARD_H);
 
-	vector<sf::CircleShape> stones;
+	const vector<sf::Vector2i> moves = {{18, 0},
+										{17, 0},
+										{18, 1},
+										{17, 1},
+										{10, 10},
+										{18, 2}};
+	for (auto mv : moves)
+	{
+		game.placeStone(mv);
+	}
+	vector<sf::CircleShape>
+		stones;
 	while (window.isOpen())
 	{
 		while (const std::optional event = window.pollEvent())
@@ -37,6 +48,7 @@ int main()
 				}
 			}
 		}
+
 		stones.clear();
 		for (int y = 0; y < 19; y++)
 		{
@@ -68,7 +80,7 @@ int main()
 		{
 			window.draw(s);
 		}
-		
+
 		// if (stones.size() != 0)
 		// {
 		// 	sf::CircleShape last_move(5.0f);
