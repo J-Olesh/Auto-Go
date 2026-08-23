@@ -28,13 +28,13 @@ class GoGame
 {
     int height;
     int width;
-    int white_captures;
-    int black_captures;
 
     BoardPos *getRelativePos(BoardPos pos, int xTransform, int yTransform);
     bool rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone);
 
 public:
+    int white_captures;
+    int black_captures;
     GoGame(int w, int h);
     bool placeStone(sf::Vector2i);
     bool blackTurn;

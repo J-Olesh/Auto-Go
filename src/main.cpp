@@ -1,9 +1,25 @@
 #include <SFML/Graphics.hpp>
 #include <GoGame.h>
 #include <iostream>
-
+// todo: either capture count or move count is wrong. probably double counting captures
 int main()
 {
+	sf::Font font;
+	font.openFromFile("C:/Windows/Fonts/arial.ttf");
+	sf::Text text(font); // a font is required to make a text object
+	text.setPosition({90.f, 600.f});
+	// set the string to display
+	// text.setString("");
+
+	// set the character size
+	text.setCharacterSize(24); // in pixels, not points!
+
+	// set the color
+	text.setFillColor(sf::Color::Red);
+
+	// set the text style
+	text.setStyle(sf::Text::Bold);
+
 	sf::Clock clock;
 	sf::RenderWindow window(sf::VideoMode({800, 800}), "SFML works!");
 
@@ -11,8 +27,9 @@ int main()
 	const int BOARD_H = 19;
 	GoGame game = GoGame(BOARD_W, BOARD_H);
 
-	vector<sf::CircleShape>
-		stones;
+	vector<sf::CircleShape> stones;
+	bool autoPlay = false;
+	int moveCount = 0;
 	while (window.isOpen())
 	{
 		while (const std::optional event = window.pollEvent())
@@ -24,44 +41,48 @@ int main()
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Right))
 			{
-				sf::Time elapsed = clock.getElapsedTime();
+				autoPlay = !autoPlay;
+			}
+		}
+		sf::Time elapsed = clock.getElapsedTime();
 
-				if (elapsed.asMilliseconds() > 10)
+		if (elapsed.asMilliseconds() > 10 && autoPlay)
+		{
+			vector<sf::Vector2i> empties = game.getEmptySpaces();
+			int size = empties.size();
+			int move = rand() % size;
+			if (game.placeStone(empties[move]) != -1)
+			{
+				clock.restart();
+				stones.clear();
+				moveCount++;
+				for (int y = 0; y < 19; y++)
 				{
-					vector<sf::Vector2i> empties = game.getEmptySpaces();
-					int size = empties.size();
-					int move = rand() % size;
-					if (game.placeStone(empties[move]) != -1)
+					for (int x = 0; x < 19; x++)
 					{
-						clock.restart();
-						stones.clear();
-						for (int y = 0; y < 19; y++)
+						if (game.board[x][y].state == 'B')
 						{
-							for (int x = 0; x < 19; x++)
-							{
-								if (game.board[x][y].state == 'B')
-								{
 
-									sf::CircleShape shape(10.f);
-									shape.setFillColor(sf::Color::Blue);
-									shape.setOrigin(shape.getGeometricCenter());
-									shape.setPosition({(x * 20) + 10, (y * 20 + 10)});
-									stones.push_back(shape);
-								}
-								else if (game.board[x][y].state == 'W')
-								{
+							sf::CircleShape shape(10.f);
+							shape.setFillColor(sf::Color::Blue);
+							shape.setOrigin(shape.getGeometricCenter());
+							shape.setPosition({(x * 20.f) + 10, (y * 20.f + 10)});
+							stones.push_back(shape);
+						}
+						else if (game.board[x][y].state == 'W')
+						{
 
-									sf::CircleShape shape(10.f);
-									shape.setFillColor(sf::Color::White);
-									shape.setOrigin(shape.getGeometricCenter());
-									shape.setPosition({(x * 20) + 10, (y * 20 + 10)});
+							sf::CircleShape shape(10.f);
+							shape.setFillColor(sf::Color::White);
+							shape.setOrigin(shape.getGeometricCenter());
+							shape.setPosition({(x * 20.f) + 10, (y * 20.f + 10)});
 
-									stones.push_back(shape);
-								}
-							}
+							stones.push_back(shape);
 						}
 					}
 				}
+
+				text.setString("Black captures: " + std::to_string(game.black_captures) + "\nWhite captures: " + std::to_string(game.white_captures) + "\nMoves: " + std::to_string(moveCount));
 			}
 		}
 
@@ -70,6 +91,7 @@ int main()
 		{
 			window.draw(s);
 		}
+		window.draw(text);
 
 		// if (stones.size() != 0)
 		// {

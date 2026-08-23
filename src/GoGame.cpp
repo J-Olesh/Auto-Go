@@ -56,12 +56,12 @@ bool GoGame::placeStone(sf::Vector2i xy)
     BoardPos move(xy.y, xy.x, colour);
     if (board[move.x][move.y].state != ' ')
     {
-        std::cout << "invalid move: space occupied" << std::endl;
+        // std::cout << "invalid move: space occupied" << std::endl;
         return -1;
     }
 
     board[move.x][move.y] = move;
-    std::cout << "place stone: " << move << std::endl;
+    // std::cout << "place stone: " << move << std::endl;
     int transforms[4][2] = {{0, 1},
                             {1, 0},
                             {0, -1},
@@ -74,12 +74,12 @@ bool GoGame::placeStone(sf::Vector2i xy)
         // if adj is not OOB
         if (p != nullptr)
         {
-            std::cout << "checking adj: " << *p << std::endl;
-            // if connected to a friend
+            // std::cout << "checking adj: " << *p << std::endl;
+            //  if connected to a friend
             if ((p->state != move.state) && (p->state != ' '))
             {
-                std::cout << "found adj from: " << *p << std::endl;
-                // inefficient: potentially checks same group 4 times.
+                // std::cout << "found adj from: " << *p << std::endl;
+                //  inefficient: potentially checks same group 4 times.
                 vector<BoardPos> searched = vector<BoardPos>();
 
                 if (!rec_hasLiberties(searched, p))
@@ -102,7 +102,7 @@ bool GoGame::placeStone(sf::Vector2i xy)
         }
         else
         {
-            std::cout << "skipped adj check: OOB" << std::endl;
+            // std::cout << "skipped adj check: OOB" << std::endl;
         }
     }
     if (!capturedSomething)
@@ -110,19 +110,19 @@ bool GoGame::placeStone(sf::Vector2i xy)
         vector<BoardPos> searched = vector<BoardPos>();
         if (!rec_hasLiberties(searched, &move))
         {
-            std::cout << "invalid move: suicide rule" << std::endl;
+            // std::cout << "invalid move: suicide rule" << std::endl;
             board[move.x][move.y].state = ' ';
             return -1;
         }
     }
     blackTurn = !blackTurn;
-    std::cout << "valid move, returning" << std::endl;
+    // std::cout << "valid move, returning" << std::endl;
     return 0;
 }
 
 bool GoGame::rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone)
 {
-    std::cout << *stone << std::endl;
+    // std::cout << *stone << std::endl;
     bool res = false;
 
     int transforms[4][2] = {{0, 1},
@@ -143,7 +143,7 @@ bool GoGame::rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone)
                 if (adjacent->state == ' ')
                 {
                     res = true;
-                    std::cout << "space empty" << std::endl;
+                    // std::cout << "space empty" << std::endl;
                 }
                 else if (adjacent->state == stone->state)
                 {
@@ -153,7 +153,7 @@ bool GoGame::rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone)
         }
         else
         {
-            std::cout << "[rec] skipped adj check: OOB" << std::endl;
+            // std::cout << "[rec] skipped adj check: OOB" << std::endl;
         }
     }
     return res;
