@@ -11,16 +11,6 @@ int main()
 	const int BOARD_H = 19;
 	GoGame game = GoGame(BOARD_W, BOARD_H);
 
-	const vector<sf::Vector2i> moves = {{18, 0},
-										{17, 0},
-										{18, 1},
-										{17, 1},
-										{10, 10},
-										{18, 2}};
-	for (auto mv : moves)
-	{
-		game.placeStone(mv);
-	}
 	vector<sf::CircleShape>
 		stones;
 	while (window.isOpen())
@@ -32,11 +22,11 @@ int main()
 				window.close();
 			}
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Up))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Right))
 			{
 				sf::Time elapsed = clock.getElapsedTime();
 
-				if (elapsed.asMilliseconds() > 20)
+				if (elapsed.asMilliseconds() > 10)
 				{
 					vector<sf::Vector2i> empties = game.getEmptySpaces();
 					int size = empties.size();
@@ -44,37 +34,37 @@ int main()
 					if (game.placeStone(empties[move]) != -1)
 					{
 						clock.restart();
+						stones.clear();
+						for (int y = 0; y < 19; y++)
+						{
+							for (int x = 0; x < 19; x++)
+							{
+								if (game.board[x][y].state == 'B')
+								{
+
+									sf::CircleShape shape(10.f);
+									shape.setFillColor(sf::Color::Blue);
+									shape.setOrigin(shape.getGeometricCenter());
+									shape.setPosition({(x * 20) + 10, (y * 20 + 10)});
+									stones.push_back(shape);
+								}
+								else if (game.board[x][y].state == 'W')
+								{
+
+									sf::CircleShape shape(10.f);
+									shape.setFillColor(sf::Color::White);
+									shape.setOrigin(shape.getGeometricCenter());
+									shape.setPosition({(x * 20) + 10, (y * 20 + 10)});
+
+									stones.push_back(shape);
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 
-		stones.clear();
-		for (int y = 0; y < 19; y++)
-		{
-			for (int x = 0; x < 19; x++)
-			{
-				if (game.board[x][y].state == 'B')
-				{
-
-					sf::CircleShape shape(10.f);
-					shape.setFillColor(sf::Color::Blue);
-					shape.setOrigin(shape.getGeometricCenter());
-					shape.setPosition({(x * 20) + 10, (y * 20 + 10)});
-					stones.push_back(shape);
-				}
-				else if (game.board[x][y].state == 'W')
-				{
-
-					sf::CircleShape shape(10.f);
-					shape.setFillColor(sf::Color::White);
-					shape.setOrigin(shape.getGeometricCenter());
-					shape.setPosition({(x * 20) + 10, (y * 20 + 10)});
-
-					stones.push_back(shape);
-				}
-			}
-		}
 		window.clear();
 		for (auto s : stones)
 		{
