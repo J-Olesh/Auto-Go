@@ -46,6 +46,12 @@ GoGame::GoGame(int w, int h)
 
 bool GoGame::placeStone(sf::Vector2i xy)
 {
+    /*
+    capture logic: when a stone is played:
+    for each adjacent enemy stone:
+    if the stone check status with rec_hasLiberties(stone):
+
+    */
 
     char colour = 'B';
     if (!blackTurn)
@@ -57,11 +63,15 @@ bool GoGame::placeStone(sf::Vector2i xy)
     if (board[move.x][move.y].state != ' ')
     {
         // std::cout << "invalid move: space occupied" << std::endl;
-        return -1;
+        return false;
     }
 
     board[move.x][move.y] = move;
-    // std::cout << "place stone: " << move << std::endl;
+    std::cout << "place stone: " << move << std::endl;
+    if (move.x == 2 && move.y == 3)
+    {
+        int f;
+    }
     int transforms[4][2] = {{0, 1},
                             {1, 0},
                             {0, -1},
@@ -70,28 +80,31 @@ bool GoGame::placeStone(sf::Vector2i xy)
     // for each adj space (up, left, down, right)
     for (auto transform : transforms)
     {
-        BoardPos *p = getRelativePos(move, transform[0], transform[1]);
+        BoardPos *adj = getRelativePos(move, transform[0], transform[1]);
         // if adj is not OOB
-        if (p != nullptr)
+        if (adj != nullptr)
         {
-            // std::cout << "checking adj: " << *p << std::endl;
-            //  if connected to a friend
-            if ((p->state != move.state) && (p->state != ' '))
+            // std::cout << "checking adj: " << *adj << std::endl;
+            //  if adj is enemy
+            if ((adj->state != move.state) && (adj->state != ' '))
             {
                 // std::cout << "found adj from: " << *p << std::endl;
-                //  inefficient: potentially checks same group 4 times.
+                //  inefficient: potentially checks same group 4 times
+                // also probably double counts
                 vector<BoardPos> searched = vector<BoardPos>();
 
-                if (!rec_hasLiberties(searched, p))
+                if (!rec_hasLiberties(searched, adj))
                 {
                     capturedSomething = true;
-                    if (p->state == 'B')
+                    if (adj->state == 'B')
                     {
                         white_captures += searched.size();
+                        std::cout << "white captures + " << searched.size();
                     }
                     else
                     {
                         black_captures += searched.size();
+                        std::cout << "black_captures + " << searched.size();
                     }
                     for (auto pos : searched)
                     {
@@ -112,51 +125,51 @@ bool GoGame::placeStone(sf::Vector2i xy)
         {
             // std::cout << "invalid move: suicide rule" << std::endl;
             board[move.x][move.y].state = ' ';
-            return -1;
+            return false;
         }
     }
     blackTurn = !blackTurn;
     // std::cout << "valid move, returning" << std::endl;
-    return 0;
+    return true;
 }
 
-bool GoGame::rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone)
+bool GoGame::rec_hasLiberties(
+    vector<BoardPos> &searched,
+    BoardPos *stone)
 {
-    // std::cout << *stone << std::endl;
-    bool res = false;
+    // Already visited this stone
+    if (std::find(searched.begin(), searched.end(), *stone) != searched.end())
+        return false;
 
-    int transforms[4][2] = {{0, 1},
-                            {1, 0},
-                            {0, -1},
-                            {-1, 0}};
+    searched.push_back(*stone);
+
+    int transforms[4][2] = {
+        {0, 1},
+        {1, 0},
+        {0, -1},
+        {-1, 0}};
 
     for (auto transform : transforms)
     {
-        BoardPos *adjacent = getRelativePos(*stone, transform[0], transform[1]);
-        // std::cout << "checking: " << *adjacent << std::endl;
-        if (adjacent != nullptr)
-        {
-            if (std::find(searched.begin(), searched.end(), *adjacent) == searched.end())
-            {
-                searched.push_back(*stone);
+        BoardPos *adjacent =
+            getRelativePos(*stone, transform[0], transform[1]);
 
-                if (adjacent->state == ' ')
-                {
-                    res = true;
-                    // std::cout << "space empty" << std::endl;
-                }
-                else if (adjacent->state == stone->state)
-                {
-                    res = rec_hasLiberties(searched, adjacent);
-                }
-            }
-        }
-        else
+        if (adjacent == nullptr)
+            continue;
+
+        if (adjacent->state == ' ')
         {
-            // std::cout << "[rec] skipped adj check: OOB" << std::endl;
+            return true;
+        }
+
+        if (adjacent->state == stone->state)
+        {
+            if (rec_hasLiberties(searched, adjacent))
+                return true;
         }
     }
-    return res;
+
+    return false;
 }
 
 vector<sf::Vector2i> GoGame::getEmptySpaces()

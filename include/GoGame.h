@@ -26,8 +26,6 @@ struct BoardPos
 
 class GoGame
 {
-    int height;
-    int width;
 
     BoardPos *getRelativePos(BoardPos pos, int xTransform, int yTransform);
     bool rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone);
@@ -40,6 +38,8 @@ public:
     bool blackTurn;
     vector<vector<BoardPos>> board;
     vector<sf::Vector2i> getEmptySpaces();
+    int height;
+    int width;
 };
 
 #endif
