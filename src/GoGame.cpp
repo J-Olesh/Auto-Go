@@ -39,7 +39,7 @@ GoGame::GoGame(int w, int h)
             board[x].push_back(pos);
         }
     }
-
+    moveCount = 0;
     white_captures = 0;
     black_captures = 0;
 }
@@ -128,6 +128,7 @@ bool GoGame::placeStone(sf::Vector2i xy)
             return false;
         }
     }
+    moveCount++;
     blackTurn = !blackTurn;
     // std::cout << "valid move, returning" << std::endl;
     return true;

@@ -33,6 +33,7 @@ class GoGame
 public:
     int white_captures;
     int black_captures;
+    int moveCount;
     GoGame(int w, int h);
     bool placeStone(sf::Vector2i);
     bool blackTurn;

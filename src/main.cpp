@@ -12,15 +12,19 @@ int main()
 	// text.setString("");
 
 	// set the character size
-	text.setCharacterSize(24); // in pixels, not points!
+	text.setCharacterSize(24);
 
 	// set the color
 	text.setFillColor(sf::Color::Red);
 
 	// set the text style
 	text.setStyle(sf::Text::Bold);
-
+	sf::Text timeText(font);
+	timeText.setPosition({90.f, 625.f});
+	timeText.setCharacterSize(20);
+	timeText.setString("time: ");
 	sf::Clock clock;
+	sf::Clock timer;
 	sf::RenderWindow window(sf::VideoMode({800, 800}), "SFML works!");
 
 	const int BOARD_W = 9;
@@ -29,7 +33,7 @@ int main()
 
 	vector<sf::CircleShape> stones;
 	bool autoPlay = false;
-	int moveCount = 0;
+
 	vector<sf::Vector2i> moves = {{0, 0}, {0, 1}, {5, 5}, {1, 0}};
 	// vector<sf::Vector2i> moves = {{2, 2}, {1, 2}, {5, 5}, {2, 1}, {6, 6}, {3, 2}, {7, 7}, {2, 3}};
 	while (window.isOpen())
@@ -51,7 +55,7 @@ int main()
 				{
 					game.placeStone(move);
 					stones.clear();
-					moveCount++;
+
 					for (int y = 0; y < BOARD_H; y++)
 					{
 						for (int x = 0; x < BOARD_W; x++)
@@ -78,7 +82,7 @@ int main()
 						}
 					}
 
-					text.setString("Black captures: " + std::to_string(game.black_captures) + "\nWhite captures: " + std::to_string(game.white_captures) + "\nMoves: " + std::to_string(moveCount));
+					text.setString("Black captures: " + std::to_string(game.black_captures) + "\nWhite captures: " + std::to_string(game.white_captures) + "\nMoves: " + std::to_string(game.moveCount));
 				}
 			}
 		}
@@ -86,6 +90,8 @@ int main()
 
 		if (elapsed.asMilliseconds() > 50 && autoPlay)
 		{
+			sf::Time totalRunTime = timer.getElapsedTime();
+			timeText.setString("time: " + std::to_string(totalRunTime.asSeconds()) + "s");
 			vector<sf::Vector2i> empties = game.getEmptySpaces();
 			int size = empties.size();
 			int move = rand() % size;
@@ -93,7 +99,7 @@ int main()
 			{
 				clock.restart();
 				stones.clear();
-				moveCount++;
+
 				for (int y = 0; y < BOARD_H; y++)
 				{
 					for (int x = 0; x < BOARD_W; x++)
@@ -120,7 +126,7 @@ int main()
 					}
 				}
 
-				text.setString("Black captures: " + std::to_string(game.black_captures) + "\nWhite captures: " + std::to_string(game.white_captures) + "\nMoves: " + std::to_string(moveCount));
+				text.setString("Black captures: " + std::to_string(game.black_captures) + "\nWhite captures: " + std::to_string(game.white_captures) + "\nMoves: " + std::to_string(game.moveCount));
 			}
 		}
 
@@ -130,6 +136,7 @@ int main()
 			window.draw(s);
 		}
 		window.draw(text);
+		window.draw(timeText);
 
 		// if (stones.size() != 0)
 		// {
