@@ -1,4 +1,3 @@
-
 #ifndef _GoGame
 #define _GoGame
 #include <SFML/Graphics.hpp>
@@ -31,6 +30,7 @@ class GoGame
     bool rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone);
 
 public:
+    sf::Vector2i lastMove;
     int white_captures;
     int black_captures;
     int moveCount;

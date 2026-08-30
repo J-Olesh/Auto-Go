@@ -16,7 +16,8 @@ FetchContent_MakeAvailable(SFML)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/GoGame.cpp
-    include/GoGame.h
+    src/GoScene.cpp
+    src/GameRenderer.cpp
     )
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)

@@ -25,6 +25,8 @@ BoardPos *GoGame::getRelativePos(BoardPos pos, int xTransform, int yTransform)
 
 GoGame::GoGame(int w, int h)
 {
+    lastMove.x = NULL;
+    lastMove.y = NULL;
     width = w;
     height = h;
     blackTurn = true;
@@ -67,7 +69,7 @@ bool GoGame::placeStone(sf::Vector2i xy)
     }
 
     board[move.x][move.y] = move;
-    std::cout << "place stone: " << move << std::endl;
+    // std::cout << "place stone: " << move << std::endl;
     if (move.x == 2 && move.y == 3)
     {
         int f;
@@ -99,12 +101,12 @@ bool GoGame::placeStone(sf::Vector2i xy)
                     if (adj->state == 'B')
                     {
                         white_captures += searched.size();
-                        std::cout << "white captures + " << searched.size();
+                        // std::cout << "white captures + " << searched.size();
                     }
                     else
                     {
                         black_captures += searched.size();
-                        std::cout << "black_captures + " << searched.size();
+                        // std::cout << "black_captures + " << searched.size();
                     }
                     for (auto pos : searched)
                     {
@@ -129,6 +131,8 @@ bool GoGame::placeStone(sf::Vector2i xy)
         }
     }
     moveCount++;
+    lastMove.x = move.x;
+    lastMove.y = move.y;
     blackTurn = !blackTurn;
     // std::cout << "valid move, returning" << std::endl;
     return true;

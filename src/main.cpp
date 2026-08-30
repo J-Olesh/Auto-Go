@@ -1,15 +1,31 @@
 #include <SFML/Graphics.hpp>
 #include <GoGame.h>
 #include <iostream>
-// todo: either capture count or move count is wrong. its counting captures again for each adj enemy stone?
+#include <algorithm>
+#include <random>
+#include <ranges>
+#include <GoScene.h>
+
 int main()
 {
-	sf::Font font;
-	font.openFromFile("C:/Windows/Fonts/arial.ttf");
+	sf::Font font("../../assets/fonts/inconsolata-lgc/Inconsolata-LGC.otf");
+	sf::RenderWindow window(sf::VideoMode({1200, 800}), "SFML works!");
+	GoScene scene = GoScene(window, font);
+
+	scene.run();
+}
+
+// can get rid of this after the timer logic is moved to the Scene
+void oldmain()
+{
+	/*
+	GoScene scene;
+	scene.run();
+	*/
+
+	sf::Font font("../../assets/fonts/inconsolata-lgc/Inconsolata-LGC.otf");
 	sf::Text text(font); // a font is required to make a text object
 	text.setPosition({90.f, 650.f});
-	// set the string to display
-	// text.setString("");
 
 	// set the character size
 	text.setCharacterSize(24);
@@ -25,15 +41,16 @@ int main()
 	timeText.setString("time: ");
 	sf::Clock clock;
 	sf::Clock timer;
+	timer.reset();
 	sf::RenderWindow window(sf::VideoMode({800, 800}), "SFML works!");
-
-	const int BOARD_W = 9;
-	const int BOARD_H = 9;
+	sf::Vector2i lastMove;
+	int BOARD_W = 19;
+	int BOARD_H = 19;
 	GoGame game = GoGame(BOARD_W, BOARD_H);
 
 	vector<sf::CircleShape> stones;
 	bool autoPlay = false;
-
+	bool pause = true;
 	vector<sf::Vector2i> moves = {{0, 0}, {0, 1}, {5, 5}, {1, 0}};
 	// vector<sf::Vector2i> moves = {{2, 2}, {1, 2}, {5, 5}, {2, 1}, {6, 6}, {3, 2}, {7, 7}, {2, 3}};
 	while (window.isOpen())
@@ -47,7 +64,15 @@ int main()
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Right))
 			{
-				autoPlay = !autoPlay;
+				if (timer.isRunning())
+				{
+					timer.stop();
+				}
+				else
+				{
+					timer.start();
+				}
+				pause = !pause;
 			}
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Up))
 			{
@@ -88,46 +113,73 @@ int main()
 		}
 		sf::Time elapsed = clock.getElapsedTime();
 
-		if (elapsed.asMilliseconds() > 50 && autoPlay)
+		if (elapsed.asMilliseconds() > 50 && !pause)
 		{
 			sf::Time totalRunTime = timer.getElapsedTime();
 			timeText.setString("time: " + std::to_string(totalRunTime.asSeconds()) + "s");
 			vector<sf::Vector2i> empties = game.getEmptySpaces();
-			int size = empties.size();
-			int move = rand() % size;
-			if (game.placeStone(empties[move]))
+			auto rd = std::random_device{};
+			auto rng = std::default_random_engine{rd()};
+
+			std::shuffle(std::begin(empties), std::end(empties), rng);
+			bool noValidMoves = false;
+			while (!game.placeStone(empties.back()))
 			{
-				clock.restart();
-				stones.clear();
-
-				for (int y = 0; y < BOARD_H; y++)
+				if (empties.size() == 1)
 				{
-					for (int x = 0; x < BOARD_W; x++)
+					pause = true;
+					timer.stop();
+					noValidMoves = true;
+					break;
+				}
+				empties.pop_back();
+			}
+			if (!noValidMoves)
+			{
+				lastMove = empties.back();
+			}
+
+			clock.restart();
+			stones.clear();
+
+			for (int y = 0; y < BOARD_H; y++)
+			{
+				for (int x = 0; x < BOARD_W; x++)
+				{
+
+					if (game.board[x][y].state == 'B')
 					{
-						if (game.board[x][y].state == 'B')
-						{
 
-							sf::CircleShape shape(10.f);
-							shape.setFillColor(sf::Color::Blue);
-							shape.setOrigin(shape.getGeometricCenter());
-							shape.setPosition({(x * 20.f) + 10, (y * 20.f + 10)});
-							stones.push_back(shape);
-						}
-						else if (game.board[x][y].state == 'W')
-						{
+						sf::CircleShape shape(10.f);
+						shape.setFillColor(sf::Color::Blue);
+						shape.setOrigin(shape.getGeometricCenter());
+						shape.setPosition({(x * 20.f) + 10, (y * 20.f + 10)});
+						stones.push_back(shape);
+					}
+					else if (game.board[x][y].state == 'W')
+					{
 
-							sf::CircleShape shape(10.f);
-							shape.setFillColor(sf::Color::Magenta);
-							shape.setOrigin(shape.getGeometricCenter());
-							shape.setPosition({(x * 20.f) + 10, (y * 20.f + 10)});
+						sf::CircleShape shape(10.f);
+						shape.setFillColor(sf::Color::Magenta);
+						shape.setOrigin(shape.getGeometricCenter());
+						shape.setPosition({(x * 20.f) + 10, (y * 20.f + 10)});
 
-							stones.push_back(shape);
-						}
+						stones.push_back(shape);
+					}
+					if (lastMove.x == x && lastMove.y == y)
+					{
+						sf::CircleShape marker(3.f);
+						marker.setFillColor(sf::Color::White);
+						marker.setOutlineColor(sf::Color::White);
+						marker.setOutlineThickness(2.f);
+						marker.setOrigin(marker.getGeometricCenter());
+						marker.setPosition({(x * 20.f) + 10, (y * 20.f + 10)});
+						stones.push_back(marker);
 					}
 				}
-
-				text.setString("Black captures: " + std::to_string(game.black_captures) + "\nWhite captures: " + std::to_string(game.white_captures) + "\nMoves: " + std::to_string(game.moveCount));
 			}
+
+			text.setString("Black captures: " + std::to_string(game.black_captures) + "\nWhite captures: " + std::to_string(game.white_captures) + "\nMoves: " + std::to_string(game.moveCount));
 		}
 
 		window.clear();
