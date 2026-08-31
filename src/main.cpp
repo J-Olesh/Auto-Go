@@ -9,8 +9,8 @@
 int main()
 {
 	sf::Font font("../../assets/fonts/inconsolata-lgc/Inconsolata-LGC.otf");
-	sf::RenderWindow window(sf::VideoMode({1200, 800}), "SFML works!");
-	GoScene scene = GoScene(window, font);
+	sf::RenderWindow window(sf::VideoMode({1500, 900}), "SFML works!");
+	GoScene scene = GoScene(window, font, 19, 19);
 
 	scene.run();
 }

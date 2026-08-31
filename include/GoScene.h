@@ -10,21 +10,24 @@ class GoScene
 {
 public:
     void run();
-    GoScene(sf::RenderWindow &window, sf::Font &font);
+    GoScene(sf::RenderWindow &window, sf::Font &font, int boardW, int boardH);
 
 private:
-    sf::Clock timer_;
+    int _boardW;
+    int _boardH;
 
-    sf::Text text;
-
-    void updateUi();
+    sf::Font font_;
+    sf::Text _statsText;
+    sf::Text _statusText;
+    void updateUi(sf::Clock &);
     void render();
     void reset();
-    bool paused_;
+    bool _paused;
+    bool autoReset;
 
-    sf::RenderWindow &window_;
-    GoGame game_;
-    GameRenderer renderer_;
+    sf::RenderWindow &_window;
+    GoGame _game;
+    GameRenderer _renderer;
 };
 
 #endif
