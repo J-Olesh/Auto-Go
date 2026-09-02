@@ -4,6 +4,8 @@
 
 void GoScene::run()
 {
+    auto rd = std::random_device{};
+    auto rng = std::default_random_engine{rd()};
     sf::Clock timer;
     timer.reset();
 
@@ -22,7 +24,7 @@ void GoScene::run()
                 {
                 case sf::Keyboard::Scan::P:
                     _paused = !_paused;
-                    if (timer.isRunning())
+                    if (_paused)
                     {
                         timer.stop();
                     }
@@ -52,10 +54,7 @@ void GoScene::run()
         if (!_paused)
         {
             auto empties = _game.getEmptySpaces();
-
-            auto rd = std::random_device{};
-            auto rng = std::default_random_engine{rd()};
-
+            // probably could be more efficient
             std::shuffle(empties.begin(), empties.end(), rng);
 
             bool moveMade = false;
@@ -92,12 +91,13 @@ void GoScene::run()
     }
 }
 
-GoScene::GoScene(sf::RenderWindow &window, sf::Font &font, int boardW, int boardH) : _game(boardW, boardH), _renderer(sf::Color::Blue, sf::Color(255, 197, 247)), _window(window), _statsText(font), _statusText(font), _boardW(boardW), _boardH(boardH)
+GoScene::GoScene(sf::RenderWindow &window, sf::Font &font, GoGame &game) : _renderer(sf::Color::Blue, sf::Color(255, 197, 247), window), _window(window), _statsText(font), _statusText(font), _game(game)
 {
-
+    _boardH = game.height;
+    _boardW = game.width;
     autoReset = false;
     _paused = true;
-    font_ = font;
+    // font_ = font;
     _statsText.setCharacterSize(20);
     float w = _renderer.getBoardWidthPx(_game);
     _statsText.setPosition({w + 2, 0.f});
@@ -117,8 +117,10 @@ void GoScene::updateUi(sf::Clock &clock)
 
     pausedstr.append(autoResetStr);
     pausedstr.append(elapsedSecondsStr);
-
-    pausedstr.append("\nMoves per Second: " + std::to_string(_game.moveCount / elapsedSeconds));
+    if (elapsedSeconds > 0.f)
+    {
+        pausedstr.append("\nMoves per Second: " + std::to_string(_game.moveCount / elapsedSeconds));
+    }
 
     _statusText.setString(pausedstr);
 
@@ -128,7 +130,7 @@ void GoScene::updateUi(sf::Clock &clock)
 
 void GoScene::render()
 {
-    _renderer.render(_window, _game);
+    _renderer.render(_game);
 }
 
 void GoScene::reset()

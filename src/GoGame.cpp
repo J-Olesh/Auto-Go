@@ -79,45 +79,62 @@ bool GoGame::placeStone(sf::Vector2i xy)
                             {0, -1},
                             {-1, 0}};
     bool capturedSomething = false;
-    // for each adj space (up, left, down, right)
+
+    vector<BoardPos> alreadyChecked = vector<BoardPos>();
+
+    // for each adj space (up, right, down, left)
     for (auto transform : transforms)
     {
         BoardPos *adj = getRelativePos(move, transform[0], transform[1]);
+
         // if adj is not OOB
         if (adj != nullptr)
         {
-            // std::cout << "checking adj: " << *adj << std::endl;
+
+            if (alreadyChecked.size() != 0)
+            {
+                if (std::find(alreadyChecked.begin(), alreadyChecked.end(), *adj) != alreadyChecked.end())
+                {
+                    continue;
+                }
+            }
+            std::cout << "checking adj: " << *adj << std::endl;
             //  if adj is enemy
             if ((adj->state != move.state) && (adj->state != ' '))
             {
-                // std::cout << "found adj from: " << *p << std::endl;
-                //  inefficient: potentially checks same group 4 times
-                // also probably double counts
-                vector<BoardPos> searched = vector<BoardPos>();
+                // a list of all the enemy stones we checked for liberties
+                vector<BoardPos> checkedForLiberties = vector<BoardPos>();
 
-                if (!rec_hasLiberties(searched, adj))
+                if (!rec_hasLiberties(checkedForLiberties, adj))
                 {
                     capturedSomething = true;
                     if (adj->state == 'B')
                     {
-                        white_captures += searched.size();
+                        white_captures += checkedForLiberties.size();
                         // std::cout << "white captures + " << searched.size();
                     }
                     else
                     {
-                        black_captures += searched.size();
+                        black_captures += checkedForLiberties.size();
                         // std::cout << "black_captures + " << searched.size();
                     }
-                    for (auto pos : searched)
+                    for (auto pos : checkedForLiberties)
                     {
                         board[pos.x][pos.y].state = ' ';
                     }
                 }
+                else
+                {
+
+                    for (auto pos : checkedForLiberties)
+                    {
+                        if (pos.x == move.x + 1 || pos.x == move.x - 1 || pos.y == move.y + 1 || pos.y == move.y - 1)
+                        {
+                            alreadyChecked.push_back(pos);
+                        }
+                    }
+                }
             }
-        }
-        else
-        {
-            // std::cout << "skipped adj check: OOB" << std::endl;
         }
     }
     if (!capturedSomething)

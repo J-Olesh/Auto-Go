@@ -1,8 +1,11 @@
 #include "GameRenderer.h"
-
-void GameRenderer::render(sf::RenderWindow &window, const GoGame &game)
+#include <iostream>
+void GameRenderer::render(const GoGame &game)
 {
-    float stoneDiameter = stoneSize_ * 2;
+    float stoneDiameter = _stoneRadius * 2;
+    float xLimit = (_window.getSize().x / 3) * 2;
+
+    _stoneRadius = float(floor((xLimit / game.width) / 2));
 
     for (int y = 0; y < game.height; y++)
     {
@@ -10,12 +13,12 @@ void GameRenderer::render(sf::RenderWindow &window, const GoGame &game)
         {
             if (game.board[x][y].state != ' ')
             {
-                sf::CircleShape shape(stoneSize_);
+                sf::CircleShape shape(_stoneRadius);
                 sf::Color color = (game.board[x][y].state == 'B') ? blackColour_ : whiteColour_;
                 shape.setFillColor(color);
                 shape.setOrigin(shape.getGeometricCenter());
-                shape.setPosition({(x * stoneDiameter) + stoneSize_, (y * stoneDiameter + stoneSize_)});
-                window.draw(shape);
+                shape.setPosition({(x * stoneDiameter) + _stoneRadius, (y * stoneDiameter + _stoneRadius)});
+                _window.draw(shape);
             }
 
             // highlight last move
@@ -23,30 +26,31 @@ void GameRenderer::render(sf::RenderWindow &window, const GoGame &game)
             {
                 if (game.lastMove.x == x && game.lastMove.y == y)
                 {
-                    sf::CircleShape marker(3.f);
+                    sf::CircleShape marker(_stoneRadius / 2);
                     marker.setFillColor(sf::Color::Green);
-                    marker.setOutlineColor(sf::Color::Green);
-                    marker.setOutlineThickness(2.f);
+
                     marker.setOrigin(marker.getGeometricCenter());
-                    marker.setPosition({(x * stoneDiameter) + stoneSize_, (y * stoneDiameter + stoneSize_)});
-                    window.draw(marker);
+                    marker.setPosition({(x * stoneDiameter) + _stoneRadius, (y * stoneDiameter + _stoneRadius)});
+                    _window.draw(marker);
                 }
             }
         }
     }
 }
 
-GameRenderer::GameRenderer(sf::Color blackColour, sf::Color whiteColor) : blackColour_(blackColour), whiteColour_(whiteColor)
+GameRenderer::GameRenderer(sf::Color blackColour, sf::Color whiteColor, sf::RenderWindow &window) : blackColour_(blackColour), whiteColour_(whiteColor),
+                                                                                                    _window(window)
 {
-    stoneSize_ = 10.f;
 }
 
 float GameRenderer::getBoardHeightPx(const GoGame &game)
 {
-    return (stoneSize_ * 2) * game.height + 10;
+    float yLimit = (_window.getSize().y / 3) * 2;
+    return yLimit;
 }
 
 float GameRenderer::getBoardWidthPx(const GoGame &game)
 {
-    return (stoneSize_ * 2) * game.width + 10;
+    float xLimit = (_window.getSize().x / 3) * 2;
+    return xLimit;
 }

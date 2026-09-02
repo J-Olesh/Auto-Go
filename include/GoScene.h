@@ -1,5 +1,5 @@
-#ifndef _GoScene
-#define _GoScene
+#ifndef GoScene_H
+#define GoScene_H
 
 #include <SFML/Graphics.hpp>
 #include <GoGame.h>
@@ -10,13 +10,13 @@ class GoScene
 {
 public:
     void run();
-    GoScene(sf::RenderWindow &window, sf::Font &font, int boardW, int boardH);
+    GoScene(sf::RenderWindow &window, sf::Font &font, GoGame &game);
 
 private:
     int _boardW;
     int _boardH;
 
-    sf::Font font_;
+    // sf::Font font_;
     sf::Text _statsText;
     sf::Text _statusText;
     void updateUi(sf::Clock &);
@@ -26,7 +26,7 @@ private:
     bool autoReset;
 
     sf::RenderWindow &_window;
-    GoGame _game;
+    GoGame &_game;
     GameRenderer _renderer;
 };
 
