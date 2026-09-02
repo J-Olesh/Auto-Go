@@ -1,11 +1,16 @@
 #include "GameRenderer.h"
 #include <iostream>
+
 void GameRenderer::render(const GoGame &game)
 {
     float stoneDiameter = _stoneRadius * 2;
-    float xLimit = (_window.getSize().x / 3) * 2;
 
-    _stoneRadius = float(floor((xLimit / game.width) / 2));
+    float xLimit = (_window.getSize().x / 3) * 2;
+    float yLimit = (_window.getSize().y);
+
+    float maxLen = std::min(xLimit, yLimit);
+
+    _stoneRadius = float(floor((maxLen / game.width) / 2));
 
     for (int y = 0; y < game.height; y++)
     {

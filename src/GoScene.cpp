@@ -97,7 +97,6 @@ GoScene::GoScene(sf::RenderWindow &window, sf::Font &font, GoGame &game) : _rend
     _boardW = game.width;
     autoReset = false;
     _paused = true;
-    // font_ = font;
     _statsText.setCharacterSize(20);
     float w = _renderer.getBoardWidthPx(_game);
     _statsText.setPosition({w + 2, 0.f});

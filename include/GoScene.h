@@ -16,7 +16,7 @@ private:
     int _boardW;
     int _boardH;
 
-    // sf::Font font_;
+  
     sf::Text _statsText;
     sf::Text _statusText;
     void updateUi(sf::Clock &);
