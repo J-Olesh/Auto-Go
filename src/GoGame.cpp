@@ -98,7 +98,7 @@ bool GoGame::placeStone(sf::Vector2i xy)
                     continue;
                 }
             }
-            std::cout << "checking adj: " << *adj << std::endl;
+            // std::cout << "checking adj: " << *adj << std::endl;
             //  if adj is enemy
             if ((adj->state != move.state) && (adj->state != ' '))
             {

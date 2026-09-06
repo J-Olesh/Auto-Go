@@ -10,6 +10,7 @@ void GameRenderer::render(const GoGame &game)
 
     float maxLen = std::min(xLimit, yLimit);
 
+    // this assumes square board. might want to make more flexible
     _stoneRadius = float(floor((maxLen / game.width) / 2));
 
     for (int y = 0; y < game.height; y++)
