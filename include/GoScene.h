@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <GoGame.h>
+#include <unordered_map>
 #include "GameRenderer.h"
 
 // responsible for making game moves, starting, pausing etc
@@ -15,8 +16,10 @@ public:
 private:
     int _boardW;
     int _boardH;
+    int _finishedCount{0};
+    int _totalMoves{0};
+    std::unordered_map<int, float> _avg_moves;
 
-  
     sf::Text _statsText;
     sf::Text _statusText;
     void updateUi(sf::Clock &);

@@ -70,8 +70,12 @@ void GoScene::run()
                 empties.pop_back();
             }
 
+            // if no valid moves
             if (!moveMade)
             {
+                _finishedCount += 1;
+                _totalMoves += _game.moveCount;
+                _avg_moves[_game.width] = _totalMoves / _finishedCount;
                 if (autoReset)
                 {
                     reset();
@@ -119,6 +123,12 @@ void GoScene::updateUi(sf::Clock &clock)
     if (elapsedSeconds > 0.f)
     {
         pausedstr.append("\nMoves per Second: " + std::to_string(_game.moveCount / elapsedSeconds));
+    }
+    // this should only be updated on game end
+    if (_avg_moves.size() > 0)
+    {
+        std::string dataText = "\nAvg moves: " + std::to_string(_avg_moves[_game.width]);
+        pausedstr.append(dataText);
     }
 
     _statusText.setString(pausedstr);
