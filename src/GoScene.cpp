@@ -39,7 +39,10 @@ void GoScene::update()
             }
         }
     }
-    _renderer.render(game);
+    if (enableRender)
+    {
+        _renderer.render(game);
+    }
 }
 
 GoScene::GoScene(sf::RenderWindow &window, int w, int h) : _renderer(sf::Color::Blue, sf::Color(255, 197, 247), window), _window(window), game(GoGame(w, h))
@@ -51,6 +54,7 @@ GoScene::GoScene(sf::RenderWindow &window, int w, int h) : _renderer(sf::Color::
     _paused = true;
     finished = false;
     _gameTimer.reset();
+    enableRender = true;
 }
 
 void GoScene::togglePause()

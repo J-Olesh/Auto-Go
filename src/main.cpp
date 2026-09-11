@@ -11,14 +11,16 @@
 
 int main()
 {
-	std::ofstream file("../../results.csv");
+
+	std::fstream file;
+	file.open("../../results.csv", std::ios::app);
 	if (!file.is_open())
 	{
 		std::cerr << "Failed to open file!" << std::endl;
 		return 1;
 	}
 	std::vector<std::vector<std::string>> outputData;
-	outputData.push_back({"board size", "average moves", "average captures (B)", "average captures (W)"});
+	// outputData.push_back({"board size", "moves", "captures (B)", "captures (W)"});
 
 	sf::RenderWindow window(sf::VideoMode({1000, 800}), "ImGui + SFML = <3");
 	// window.setFramerateLimit(60);
@@ -26,20 +28,20 @@ int main()
 	ImGui::SFML::Init(window);
 	std::vector<float> avgMoveData;
 
-	const int TRIALS_PER_SIZE = 1000;
+	const int TRIALS_PER_SIZE = 30000;
 	int sizesDone = 0;
 	int trialCount = 0;
 	int totalMoves = 0;
-	int maxW = 12;
-	int maxH = 12;
-	int startw = 4;
-	int starth = 4;
+	int maxW = 7;
+	int maxH = 7;
+	int startw = 7;
+	int starth = 7;
 	int blackCaptures = 0;
 	int whiteCaptures = 0;
 	const int NUM_BOARD_SIZES = maxW + 1 - startw;
 	bool done = false;
 	GoScene scene = GoScene(window, startw, starth);
-
+	scene.enableRender = false;
 	sf::Clock deltaClock;
 	while (window.isOpen())
 	{
@@ -113,8 +115,10 @@ int main()
 				{
 
 					avgMoveData.push_back(float(totalMoves / TRIALS_PER_SIZE));
-					outputData.push_back({std::to_string(scene.game.width),
-										  std::to_string(totalMoves / TRIALS_PER_SIZE),
+					outputData.push_back({std::to_string(scene.game.height),
+										  std::to_string(scene.game.width * scene.game.height),
+										  std::to_string(float(totalMoves / TRIALS_PER_SIZE)),
+										  std::to_string(float((totalMoves / TRIALS_PER_SIZE)) / (scene.game.width * scene.game.height)),
 										  std::to_string(blackCaptures / TRIALS_PER_SIZE),
 										  std::to_string(whiteCaptures / TRIALS_PER_SIZE)});
 

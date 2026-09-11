@@ -18,6 +18,7 @@ public:
     void toggleAutoReset();
     bool autoReset;
     bool finished;
+    bool enableRender;
     GoGame game;
 
 private:
