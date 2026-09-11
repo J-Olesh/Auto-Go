@@ -1,5 +1,4 @@
 #include "GoGame.h"
-#include <iostream>
 #include <stdexcept>
 #include <algorithm>
 std::ostream &operator<<(std::ostream &stream, const BoardPos &pos)
@@ -23,13 +22,11 @@ BoardPos *GoGame::getRelativePos(BoardPos pos, int xTransform, int yTransform)
     return &board[newX][newY];
 }
 
-GoGame::GoGame(int w, int h)
+GoGame::GoGame(int w, int h) : width(w), height(h)
 {
     lastMove.x = NULL;
     lastMove.y = NULL;
-    width = w;
-    height = h;
-    blackTurn = true;
+    _blackTurn = true;
     // init board
     for (int x = 0; x < width; x++)
     {
@@ -41,9 +38,10 @@ GoGame::GoGame(int w, int h)
             board[x].push_back(pos);
         }
     }
+    _potentialKo = false;
     moveCount = 0;
-    white_captures = 0;
-    black_captures = 0;
+    whiteCaptures = 0;
+    blackCaptures = 0;
 }
 
 bool GoGame::placeStone(sf::Vector2i xy)
@@ -56,7 +54,7 @@ bool GoGame::placeStone(sf::Vector2i xy)
     */
 
     char colour = 'B';
-    if (!blackTurn)
+    if (!_blackTurn)
     {
         colour = 'W';
     }
@@ -64,7 +62,6 @@ bool GoGame::placeStone(sf::Vector2i xy)
     BoardPos move(xy.y, xy.x, colour);
     if (board[move.x][move.y].state != ' ')
     {
-        // std::cout << "invalid move: space occupied" << std::endl;
         return false;
     }
 
@@ -90,7 +87,6 @@ bool GoGame::placeStone(sf::Vector2i xy)
         // if adj is not OOB
         if (adj != nullptr)
         {
-
             if (alreadyChecked.size() != 0)
             {
                 if (std::find(alreadyChecked.begin(), alreadyChecked.end(), *adj) != alreadyChecked.end())
@@ -98,7 +94,6 @@ bool GoGame::placeStone(sf::Vector2i xy)
                     continue;
                 }
             }
-            // std::cout << "checking adj: " << *adj << std::endl;
             //  if adj is enemy
             if ((adj->state != move.state) && (adj->state != ' '))
             {
@@ -108,18 +103,30 @@ bool GoGame::placeStone(sf::Vector2i xy)
                 if (!rec_hasLiberties(checkedForLiberties, adj))
                 {
                     capturedSomething = true;
+                    int capturedGroupSize = checkedForLiberties.size();
+
+                    if (capturedGroupSize == 1)
+                    {
+                        // Ko rule check
+                        if ((sf::Vector2i{checkedForLiberties.front().x, checkedForLiberties.front().y} == lastMove) &&
+                            sf::Vector2i{move.x, move.y} == _lastTurnCapture)
+                        {
+                            board[move.x][move.y].state = ' ';
+                            return false;
+                        }
+                        _lastTurnCapture = sf::Vector2i{checkedForLiberties.front().x, checkedForLiberties.front().y};
+                    }
                     if (adj->state == 'B')
                     {
-                        white_captures += checkedForLiberties.size();
-                        // std::cout << "white captures + " << searched.size();
+                        whiteCaptures += capturedGroupSize;
                     }
                     else
                     {
-                        black_captures += checkedForLiberties.size();
-                        // std::cout << "black_captures + " << searched.size();
+                        blackCaptures += capturedGroupSize;
                     }
                     for (auto pos : checkedForLiberties)
                     {
+
                         board[pos.x][pos.y].state = ' ';
                     }
                 }
@@ -150,8 +157,7 @@ bool GoGame::placeStone(sf::Vector2i xy)
     moveCount++;
     lastMove.x = move.x;
     lastMove.y = move.y;
-    blackTurn = !blackTurn;
-    // std::cout << "valid move, returning" << std::endl;
+    _blackTurn = !_blackTurn;
     return true;
 }
 

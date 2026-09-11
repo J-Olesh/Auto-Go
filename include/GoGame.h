@@ -28,15 +28,18 @@ class GoGame
 
     BoardPos *getRelativePos(BoardPos pos, int xTransform, int yTransform);
     bool rec_hasLiberties(vector<BoardPos> &searched, BoardPos *stone);
+    bool _blackTurn;
+    bool _potentialKo;
+    sf::Vector2i _lastTurnCapture;
 
 public:
     sf::Vector2i lastMove;
-    int white_captures;
-    int black_captures;
+    int whiteCaptures;
+    int blackCaptures;
     int moveCount;
     GoGame(int w, int h);
     bool placeStone(sf::Vector2i);
-    bool blackTurn;
+
     vector<vector<BoardPos>> board;
     vector<sf::Vector2i> getEmptySpaces();
     int height;

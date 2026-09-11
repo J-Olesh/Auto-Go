@@ -6,21 +6,37 @@
 #include <SFML/Window/Event.hpp>
 #include <GoScene.h>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 int main()
 {
+	std::ofstream file("../../results.csv");
+	if (!file.is_open())
+	{
+		std::cerr << "Failed to open file!" << std::endl;
+		return 1;
+	}
+	std::vector<std::vector<std::string>> outputData;
+	outputData.push_back({"board size", "average moves", "average captures (B)", "average captures (W)"});
+
 	sf::RenderWindow window(sf::VideoMode({1000, 800}), "ImGui + SFML = <3");
 	// window.setFramerateLimit(60);
 
 	ImGui::SFML::Init(window);
 	std::vector<float> avgMoveData;
-	const int NUM_BOARD_SIZES = 20;
-	const int TRIALS_PER_SIZE = 10;
+
+	const int TRIALS_PER_SIZE = 1000;
 	int sizesDone = 0;
 	int trialCount = 0;
 	int totalMoves = 0;
-	int startw = 9;
-	int starth = 9;
+	int maxW = 12;
+	int maxH = 12;
+	int startw = 4;
+	int starth = 4;
+	int blackCaptures = 0;
+	int whiteCaptures = 0;
+	const int NUM_BOARD_SIZES = maxW + 1 - startw;
 	bool done = false;
 	GoScene scene = GoScene(window, startw, starth);
 
@@ -65,7 +81,6 @@ int main()
 
 		ImGui::Text("Board Size: %dx%d", scene.game.width, scene.game.height);
 		ImGui::Text("trials: %d", trialCount);
-		ImGui::Text("sizes: %d", sizesDone);
 		ImGui::Text("moves: %d", totalMoves);
 		ImGui::EndChild();
 
@@ -91,20 +106,42 @@ int main()
 				trialCount++;
 
 				totalMoves += scene.game.moveCount;
+				blackCaptures += scene.game.blackCaptures;
+				whiteCaptures += scene.game.whiteCaptures;
+
 				if (trialCount == TRIALS_PER_SIZE)
 				{
 
 					avgMoveData.push_back(float(totalMoves / TRIALS_PER_SIZE));
-					for (auto i : avgMoveData)
-					{
-						std::cout << i << "\n";
-					}
+					outputData.push_back({std::to_string(scene.game.width),
+										  std::to_string(totalMoves / TRIALS_PER_SIZE),
+										  std::to_string(blackCaptures / TRIALS_PER_SIZE),
+										  std::to_string(whiteCaptures / TRIALS_PER_SIZE)});
 
 					totalMoves = 0;
+					blackCaptures = 0;
+					whiteCaptures = 0;
 					sizesDone++;
 					if (sizesDone == NUM_BOARD_SIZES)
 					{
 
+						for (auto &row : outputData)
+						{
+							for (auto it = row.begin(); it != row.end(); ++it)
+							{
+								if (std::next(it) != row.end())
+								{
+									file << *it << ", ";
+								}
+								else
+								{
+									file << *it;
+								}
+							}
+							file << "\n";
+						}
+						file.close();
+						std::cout << "CSV file created successfully." << std::endl;
 						done = true;
 					}
 					else
