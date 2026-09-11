@@ -3,33 +3,28 @@
 
 #include <SFML/Graphics.hpp>
 #include <GoGame.h>
-#include <unordered_map>
 #include "GameRenderer.h"
+#include <random>
 
 // responsible for making game moves, starting, pausing etc
 class GoScene
 {
 public:
-    void run();
-    GoScene(sf::RenderWindow &window, sf::Font &font, GoGame &game);
+    void update();
+    GoScene(sf::RenderWindow &window, int w, int h);
+    void togglePause();
+    void restart(int w, int h);
+    void reset();
+    void toggleAutoReset();
+    bool autoReset;
+    bool finished;
+    GoGame game;
 
 private:
-    int _boardW;
-    int _boardH;
-    int _finishedCount{0};
-    int _totalMoves{0};
-    std::unordered_map<int, float> _avg_moves;
-
-    sf::Text _statsText;
-    sf::Text _statusText;
-    void updateUi(sf::Clock &);
-    void render();
-    void reset();
+    std::linear_congruential_engine<uint_fast32_t, 16807U, 0U, 2147483647U> _rng;
     bool _paused;
-    bool autoReset;
-
+    sf::Clock _gameTimer;
     sf::RenderWindow &_window;
-    GoGame &_game;
     GameRenderer _renderer;
 };
 

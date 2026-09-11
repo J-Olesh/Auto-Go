@@ -1,19 +1,29 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+#include <GoScene.h>
+#include <iostream>
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode({640, 480}), "ImGui + SFML = <3");
-	window.setFramerateLimit(60);
-	ImGui::SFML::Init(window);
+	sf::RenderWindow window(sf::VideoMode({1000, 800}), "ImGui + SFML = <3");
+	// window.setFramerateLimit(60);
 
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
+	ImGui::SFML::Init(window);
+	// check if this works as a vec
+	static float avgMoveData[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	const int NUM_BOARD_SIZES = 40;
+	const int TRIALS_PER_SIZE = 1;
+	int sizesDone = 0;
+	int trialCount = 0;
+	int totalMoves = 0;
+	int startw = 9;
+	int starth = 9;
+	bool done = false;
+	GoScene scene = GoScene(window, startw, starth);
 
 	sf::Clock deltaClock;
 	while (window.isOpen())
@@ -31,13 +41,79 @@ int main()
 		ImGui::SFML::Update(window, deltaClock.restart());
 
 		ImGui::ShowDemoWindow();
+		ImGui::SetNextWindowPos(
+			ImVec2(ImGui::GetIO().DisplaySize.x, 0.0f),
+			ImGuiCond_Always,
+			ImVec2(1.0f, 0.0f));
 
-		ImGui::Begin("Hello, world!");
-		ImGui::Button("Look at this pretty button");
+		ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_NoResize);
+
+		if (ImGui::Button("Play/Pause"))
+		{
+			scene.togglePause();
+		}
+		if (ImGui::Button("Reset"))
+		{
+			scene.reset();
+		}
+
+		if (ImGui::Button(scene.autoReset ? "Turn Off Auto-Reset" : "Turn On Auto-Reset"))
+		{
+			scene.toggleAutoReset();
+		}
+		ImGui::Text("Board Size: %dx%d", scene.game.width, scene.game.height);
+		ImGui::Text("trials: %d", trialCount);
+		ImGui::Text("sizes: %d", sizesDone);
+		ImGui::Text("moves: %d", totalMoves);
+
 		ImGui::End();
-
+		ImGui::Begin("data");
+		float maxY = 0.f;
+		for (int i = 0; i < NUM_BOARD_SIZES; i++)
+		{
+			if (avgMoveData[i] > maxY)
+			{
+				maxY = avgMoveData[i];
+			}
+		}
+		ImGui::PlotLines("AVG MOVES", avgMoveData, NUM_BOARD_SIZES, 0, NULL, float(NUM_BOARD_SIZES), maxY, ImVec2(400.f, 400.f));
+		ImGui::End();
 		window.clear();
-		window.draw(shape);
+		if (!done)
+		{
+			scene.update();
+			if (scene.finished)
+			{
+				trialCount++;
+
+				totalMoves += scene.game.moveCount;
+				if (trialCount == TRIALS_PER_SIZE)
+				{
+					avgMoveData[sizesDone] = totalMoves / TRIALS_PER_SIZE;
+
+					totalMoves = 0;
+					sizesDone++;
+					if (sizesDone == NUM_BOARD_SIZES)
+					{
+						for (int i = 0; i < NUM_BOARD_SIZES; i++)
+						{
+							std::cout << avgMoveData[i] << std::endl;
+						}
+						done = true;
+					}
+					else
+					{
+						trialCount = 0;
+						scene.restart(startw + sizesDone, starth + sizesDone);
+					}
+				}
+				else
+				{
+					scene.reset();
+				}
+			}
+		}
+
 		ImGui::SFML::Render(window);
 		window.display();
 	}
