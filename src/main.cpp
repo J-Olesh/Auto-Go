@@ -13,10 +13,9 @@ int main()
 	// window.setFramerateLimit(60);
 
 	ImGui::SFML::Init(window);
-	// check if this works as a vec
-	static float avgMoveData[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-	const int NUM_BOARD_SIZES = 40;
-	const int TRIALS_PER_SIZE = 1;
+	std::vector<float> avgMoveData;
+	const int NUM_BOARD_SIZES = 20;
+	const int TRIALS_PER_SIZE = 10;
 	int sizesDone = 0;
 	int trialCount = 0;
 	int totalMoves = 0;
@@ -46,7 +45,7 @@ int main()
 			ImGuiCond_Always,
 			ImVec2(1.0f, 0.0f));
 
-		ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_NoResize);
+		ImGui::Begin("Controls", nullptr);
 
 		if (ImGui::Button("Play/Pause"))
 		{
@@ -61,22 +60,27 @@ int main()
 		{
 			scene.toggleAutoReset();
 		}
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Stats");
+		ImGui::BeginChild("Stats");
+
 		ImGui::Text("Board Size: %dx%d", scene.game.width, scene.game.height);
 		ImGui::Text("trials: %d", trialCount);
 		ImGui::Text("sizes: %d", sizesDone);
 		ImGui::Text("moves: %d", totalMoves);
+		ImGui::EndChild();
 
 		ImGui::End();
 		ImGui::Begin("data");
 		float maxY = 0.f;
-		for (int i = 0; i < NUM_BOARD_SIZES; i++)
+		for (auto i : avgMoveData)
 		{
-			if (avgMoveData[i] > maxY)
+			if (i > maxY)
 			{
-				maxY = avgMoveData[i];
+				maxY = i;
 			}
 		}
-		ImGui::PlotLines("AVG MOVES", avgMoveData, NUM_BOARD_SIZES, 0, NULL, float(NUM_BOARD_SIZES), maxY, ImVec2(400.f, 400.f));
+
+		ImGui::PlotLines("AVG MOVES", &avgMoveData.front(), avgMoveData.size(), 0, NULL, float(NUM_BOARD_SIZES), maxY, ImVec2(400.f, 400.f), sizeof(avgMoveData.front()));
 		ImGui::End();
 		window.clear();
 		if (!done)
@@ -89,16 +93,18 @@ int main()
 				totalMoves += scene.game.moveCount;
 				if (trialCount == TRIALS_PER_SIZE)
 				{
-					avgMoveData[sizesDone] = totalMoves / TRIALS_PER_SIZE;
+
+					avgMoveData.push_back(float(totalMoves / TRIALS_PER_SIZE));
+					for (auto i : avgMoveData)
+					{
+						std::cout << i << "\n";
+					}
 
 					totalMoves = 0;
 					sizesDone++;
 					if (sizesDone == NUM_BOARD_SIZES)
 					{
-						for (int i = 0; i < NUM_BOARD_SIZES; i++)
-						{
-							std::cout << avgMoveData[i] << std::endl;
-						}
+
 						done = true;
 					}
 					else

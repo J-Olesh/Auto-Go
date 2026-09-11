@@ -40,7 +40,6 @@ void GoScene::update()
         }
     }
     _renderer.render(game);
-    // updateUi(_gameTimer);
 }
 
 GoScene::GoScene(sf::RenderWindow &window, int w, int h) : _renderer(sf::Color::Blue, sf::Color(255, 197, 247), window), _window(window), game(GoGame(w, h))
