@@ -4,7 +4,7 @@
 void GoScene::update()
 {
 
-    if (!_paused || !finished)
+    if (!paused || !finished)
     {
         auto empties = game.getEmptySpaces();
         // probably could be more efficient
@@ -26,16 +26,9 @@ void GoScene::update()
         // if no valid moves
         if (!moveMade)
         {
-
-            if (autoReset)
-            {
-                reset();
-            }
-            else
             {
                 finished = true;
-                _gameTimer.stop();
-                _paused = true;
+                paused = true;
             }
         }
     }
@@ -51,30 +44,22 @@ GoScene::GoScene(sf::RenderWindow &window, int w, int h) : _renderer(sf::Color::
     auto rd = std::random_device{};
     _rng = std::default_random_engine{rd()};
     autoReset = false;
-    _paused = true;
+    paused = true;
     finished = false;
-    _gameTimer.reset();
+
     enableRender = true;
 }
 
 void GoScene::togglePause()
 {
-    _paused = !_paused;
-    if (_paused)
-    {
-        _gameTimer.stop();
-    }
-    else
-    {
-        _gameTimer.start();
-    }
+    paused = !paused;
 }
 
 void GoScene::restart(int w, int h)
 {
     game = GoGame(w, h);
-    _gameTimer.restart();
-    _paused = false;
+
+    paused = false;
     finished = false;
 }
 
@@ -83,8 +68,8 @@ void GoScene::reset()
     int w = game.width;
     int h = game.height;
     game = GoGame(w, h);
-    _gameTimer.restart();
-    _paused = false;
+
+    paused = false;
     finished = false;
 }
 

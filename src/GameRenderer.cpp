@@ -5,9 +5,9 @@ void GameRenderer::render(const GoGame &game)
 {
     float stoneDiameter = _stoneRadius * 2;
 
-    // board should not be more than 2/3rds window width, or 90% height
+    // board should not be more than 2/3rds window width, or 80% height
     float xLimit = (_window.getSize().x / 3) * 2;
-    float yLimit = (_window.getSize().y * 0.9);
+    float yLimit = (_window.getSize().y * 0.8);
 
     float maxLen = std::min(xLimit, yLimit);
 

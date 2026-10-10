@@ -5,6 +5,7 @@
 #include <GoGame.h>
 #include "GameRenderer.h"
 #include <random>
+#include <map>
 
 // responsible for making game moves, starting, pausing etc
 class GoScene
@@ -19,12 +20,12 @@ public:
     bool autoReset;
     bool finished;
     bool enableRender;
+    bool paused;
     GoGame game;
+    std::map<int, float> capture_plot;
 
 private:
     std::linear_congruential_engine<uint_fast32_t, 16807U, 0U, 2147483647U> _rng;
-    bool _paused;
-    sf::Clock _gameTimer;
     sf::RenderWindow &_window;
     GameRenderer _renderer;
 };
