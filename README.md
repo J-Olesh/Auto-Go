@@ -14,7 +14,7 @@ The program is satisfying to watch, particularly on larger board sizes, and ofte
 Non-square board sizes can be used, but have not been tested and may not work properly.
 
 ## Screenshots
-![screenshot of the application running with a 9x9 board](https://github.com/J-Olesh/Auto-Go/blob/master/docs/demo-img1.png "demo1")
+![screenshot of the application running with a 9x9 board](https://github.com/J-Olesh/Auto-Go/blob/master/docs/demo-img2.png "demo2")
 
 
-![screenshot of the application running with a 50x50 board](https://github.com/J-Olesh/Auto-Go/blob/master/docs/demo-img2.png "demo")
+![screenshot of the application running with a 50x50 board](https://github.com/J-Olesh/Auto-Go/blob/master/docs/demo-img1.png "demo1")
