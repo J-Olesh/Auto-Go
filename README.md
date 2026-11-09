@@ -1,4 +1,4 @@
-# CMake SFML Project Template
+# Auto-Go
 
-A SFML program that automatically 'plays' games of Go/Baduk/Weiqi. Moves are played at random until one side has no legal moves remaining.
-The Ko rule is not currently enforced. Custom board sizes are supported.
+A SFML program simulates games of go with each move chosen at random. The game continues until one side cannot make a legal move on their turn.
+Ko rule is supported, board size is customisable.

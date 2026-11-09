@@ -5,7 +5,7 @@
 #include <SFML/Window/Event.hpp>
 #include <GoScene.h>
 
-void sideMenu(GoScene &scene, int &trialCount, int &totalMoves, float &avgOverSq, int &boardSizeOption, bool &inProgress)
+void sideMenu(GoScene &scene, int &trialCount, long int &totalMoves, float &avgOverSq, int &boardSizeOption, bool &inProgress)
 {
 
 	ImGui::SetNextWindowPos(
@@ -21,7 +21,7 @@ void sideMenu(GoScene &scene, int &trialCount, int &totalMoves, float &avgOverSq
 	if (trialCount != 0)
 		avg_moves = float(totalMoves / trialCount);
 	ImGui::Text("Average moves: %f", avg_moves);
-	ImGui::Text("avg_over_sq %f", avgOverSq);
+	ImGui::Text("avg_over_sq (updates every 10 games)%f", avgOverSq);
 
 	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Controls");
 	bool size_changed;
@@ -77,13 +77,13 @@ void drawDataPlots(int trialCount, std::map<int, float> &data)
 int main()
 {
 
-	sf::RenderWindow window(sf::VideoMode({1000, 800}), "ImGui + SFML = <3");
+	sf::RenderWindow window(sf::VideoMode({1000, 800}), "AutoGo");
 
 	ImGui::SFML::Init(window);
 	std::vector<float> avgMoveData;
 
 	int trialCount = 0;
-	int totalMoves = 0;
+	long int totalMoves = 0;
 	int startw = 9;
 	int starth = 9;
 	int blackCaptures = 0;
@@ -145,6 +145,8 @@ int main()
 					scene.reset();
 			}
 		}
+		else if (scene.paused)
+			scene.update();
 
 		ImGui::SFML::Render(window);
 		window.display();

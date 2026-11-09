@@ -38,7 +38,7 @@ void GoScene::update()
     }
 }
 
-GoScene::GoScene(sf::RenderWindow &window, int w, int h) : _renderer(sf::Color::Blue, sf::Color(255, 197, 247), window), _window(window), game(GoGame(w, h))
+GoScene::GoScene(sf::RenderWindow &window, int w, int h) : _renderer(sf::Color::Blue, sf::Color::White, window), _window(window), game(GoGame(w, h))
 {
     finished = false;
     auto rd = std::random_device{};
